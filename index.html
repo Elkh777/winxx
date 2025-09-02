@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Навигатор по Общежитию</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://i.pinimg.com/originals/b2/f1/02/b2f10264e3a9e1379289ac07ddbb1fbd.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      backdrop-filter: brightness(0.9) contrast(1.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffffff;
+      font-size: 32px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+
+    nav {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    button {
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 0; /* ← Убираем округление = квадратные кнопки */
+      padding: 12px 25px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #ff1493;
+      transform: scale(1.05);
+    }
+
+    section {
+      display: none;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      max-width: 800px;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    @media screen and (max-width: 600px) {
+      button {
+        width: 90%;
+        margin: 10px auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🏠 Навигатор по Общежитию</h1>
+
+  <nav>
+    <button onclick="showSection('welcome')">🏡 Главная</button>
+    <button onclick="showSection('map')">🗺 Карта</button>
+    <button onclick="showSection('shops')">🛒 Магазины</button>
+    <button onclick="showSection('transport')">🚌 Транспорт</button>
+  </nav>
+
+  <section id="welcome" class="active">
+    <p>Добро пожаловать на сайт навигатора по общежитию! Здесь вы найдёте полезную информацию:</p>
+    <ul>
+      <li>📌 Где кухня, душ, прачечная</li>
+      <li>🛒 Какие магазины находятся рядом</li>
+      <li>🚌 Как доехать до университета</li>
+    </ul>
+  </section>
+
+  <section id="map">
+    <h2>🗺 Карта Общежития</h2>
+    <p>На плане отмечены комнаты, кухня, душ и другие важные места.</p>
+    <img src="https://via.placeholder.com/700x400?text=План+Общежития" alt="План общежития">
+  </section>
+
+  <section id="shops">
+    <h2>🛒 Магазины рядом</h2>
+    <ul>
+      <li><strong>Пятёрочка</strong> — 5 минут пешком</li>
+      <li><strong>Магнит</strong> — 7 минут пешком</li>
+      <li><strong>Аптека</strong> — напротив входа</li>
+      <li><strong>Кофейня</strong> — на углу дома, работает до 22:00</li>
+    </ul>
+  </section>
+
+  <section id="transport">
+    <h2>🚌 Ближайшие автобусы</h2>
+    <table>
+      <tr>
+        <th>Маршрут</th>
+        <th>Остановка</th>
+        <th>Интервал</th>
+      </tr>
+      <tr>
+        <td>№15</td>
+        <td>Общежитие</td>
+        <td>каждые 15 минут</td>
+      </tr>
+      <tr>
+        <td>№42</td>
+        <td>Университет</td>
+        <td>каждые 20 минут</td>
+      </tr>
+    </table>
+    <p>⏰ Автобусы ходят с 6:00 до 23:00</p>
+  </section>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll("section").forEach(sec => {
+        sec.classList.remove("active");
+      });
+      document.getElementById(id).classList.add("active");
+    }
+  </script>
+</body>
+</html>
