@@ -1,170 +1,451 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Навигатор по Общежитию</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Навигатор по общежитию</title>
   <style>
     * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
 
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: url('https://i.pinimg.com/originals/b2/f1/02/b2f10264e3a9e1379289ac07ddbb1fbd.jpg') no-repeat center center fixed;
-      background-size: cover;
-      margin: 0;
-      padding: 20px;
+      font-family: 'Quicksand', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #d0e8ff, #ffffff);
+      background-size: 400% 400%;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
       color: #333;
-      backdrop-filter: brightness(0.9) contrast(1.1);
+      animation: gradientShift 12s ease infinite;
     }
 
-    h1 {
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Мерцающие жёлто-розовые блики */
+    .sparkles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: radial-gradient(circle, #ffeb3b, #f44336);
+      border-radius: 50%;
+      opacity: 0;
+      filter: blur(2px);
+      animation: sparkle 3s infinite;
+    }
+
+    @keyframes sparkle {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(173, 216, 230, 0.4);
+    }
+
+    .title {
       text-align: center;
-      color: #ffffff;
-      font-size: 32px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+      font-size: 2.2em;
+      margin-bottom: 25px;
+      font-weight: 700;
+      color: #0277bd;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    nav {
-      text-align: center;
-      margin: 20px 0;
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
     }
 
-    button {
-      background-color: #ff69b4;
-      color: white;
-      border: none;
-      border-radius: 0; /* ← Убираем округление = квадратные кнопки */
-      padding: 12px 25px;
-      margin: 5px;
-      font-size: 16px;
+    /* КНОПКИ ПЕРВОГО УРОВНЯ — ВКЛАДКИ: СТАЛИ БЕЛЫМИ */
+    .tab-btn {
+      background: white;
+      color: #4fc3f7;
+      border: 2px solid #b3e5fc;
+      padding: 12px 22px;
+      border-radius: 30px;
       cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      transition: 0.3s ease;
+      font-size: 1.05em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
     }
 
-    button:hover {
-      background-color: #ff1493;
-      transform: scale(1.05);
+    .tab-btn:hover {
+      background: #f0f8ff;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
     }
 
-    section {
+    .tab-btn.active {
+      background: #4fc3f7;
+      color: white;
+      border-color: #0288d1;
+      font-weight: bold;
+      box-shadow: 0 6px 14px rgba(79, 195, 247, 0.4);
+    }
+
+    .subtabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    /* КНОПКИ ВТОРОГО УРОВНЯ (НВК1–5) — СТАЛИ ГОЛУБЫМИ */
+    .subtab-btn {
+      background: #e3f2fd;
+      color: #0d47a1;
+      border: 1px solid #bbdefb;
+      padding: 10px 18px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .subtab-btn:hover {
+      background: #bbdefb;
+    }
+
+    .subtab-btn.active {
+      background: #4fc3f7;
+      color: white;
+      font-weight: 600;
+    }
+
+    .tab-pane, .subtab-pane, .store-pane {
       display: none;
-      background-color: rgba(255, 255, 255, 0.9);
       padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-      margin: 20px auto;
-      max-width: 800px;
-      animation: fadeIn 0.4s ease-in-out;
-    }
-
-    section.active {
-      display: block;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      border: 1px solid #e0f7fa;
+      animation: fadeIn 0.5s ease;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .tab-pane.active, .subtab-pane.active, .store-pane.active {
+      display: block;
     }
 
     ul {
-      padding-left: 20px;
+      list-style: none;
+      margin-top: 15px;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
+    ul li {
+      background: #f0f8ff;
+      margin: 10px 0;
+      padding: 14px 18px;
+      border-radius: 16px;
+      border-left: 5px solid #4fc3f7;
+      font-size: 1em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      transition: 0.3s;
     }
 
-    table, th, td {
-      border: 1px solid #ccc;
+    ul li:hover {
+      background: #e1f5fe;
+      transform: translateX(5px);
     }
 
-    th, td {
-      padding: 10px;
-      text-align: left;
+    .building-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin: 20px 0;
     }
 
-    img {
-      max-width: 100%;
-      border-radius: 10px;
-      margin-top: 10px;
+    /* КНОПКИ ВЫБОРА КОРПУСА — ТОЖЕ ГОЛУБЫЕ */
+    .building-btn {
+      background: #e3f2fd;
+      color: #0d47a1;
+      border: 1px solid #bbdefb;
+      padding: 10px 18px;
+      border-radius: 28px;
+      cursor: pointer;
+      font-size: 0.95em;
+      transition: 0.3s;
     }
 
-    @media screen and (max-width: 600px) {
-      button {
-        width: 90%;
-        margin: 10px auto;
-      }
+    .building-btn:hover {
+      background: #bbdefb;
+    }
+
+    .building-btn.active {
+      background: #4fc3f7;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(79, 195, 247, 0.3);
     }
   </style>
 </head>
 <body>
-  <h1>🏠 Навигатор по Общежитию</h1>
 
-  <nav>
-    <button onclick="showSection('welcome')">🏡 Главная</button>
-    <button onclick="showSection('map')">🗺 Карта</button>
-    <button onclick="showSection('shops')">🛒 Магазины</button>
-    <button onclick="showSection('transport')">🚌 Транспорт</button>
-  </nav>
+  <div class="background"></div>
+  <div class="sparkles"></div>
 
-  <section id="welcome" class="active">
-    <p>Добро пожаловать на сайт навигатора по общежитию! Здесь вы найдёте полезную информацию:</p>
-    <ul>
-      <li>📌 Где кухня, душ, прачечная</li>
-      <li>🛒 Какие магазины находятся рядом</li>
-      <li>🚌 Как доехать до университета</li>
-    </ul>
-  </section>
+  <div class="container">
+    <h1 class="title">Навигатор по общежитию 🏡</h1>
 
-  <section id="map">
-    <h2>🗺 Карта Общежития</h2>
-    <p>На плане отмечены комнаты, кухня, душ и другие важные места.</p>
-    <img src="https://via.placeholder.com/700x400?text=План+Общежития" alt="План общежития">
-  </section>
+    <!-- Вкладки -->
+    <div class="tabs">
+      <div class="tab-btn active" data-tab="transport">🚌 Транспорт</div>
+      <div class="tab-btn" data-tab="shopping">🛒 Закупки/Еда</div>
+    </div>
 
-  <section id="shops">
-    <h2>🛒 Магазины рядом</h2>
-    <ul>
-      <li><strong>Пятёрочка</strong> — 5 минут пешком</li>
-      <li><strong>Магнит</strong> — 7 минут пешком</li>
-      <li><strong>Аптека</strong> — напротив входа</li>
-      <li><strong>Кофейня</strong> — на углу дома, работает до 22:00</li>
-    </ul>
-  </section>
+    <!-- Содержимое вкладок -->
+    <div class="tab-content">
+      <!-- Транспорт -->
+      <div id="transport" class="tab-pane active">
+        <div class="subtabs">
+          <div class="subtab-btn active" data-subtab="nvk1">НВК1</div>
+          <div class="subtab-btn" data-subtab="nvk2">НВК2</div>
+          <div class="subtab-btn" data-subtab="nvk3">НВК3</div>
+          <div class="subtab-btn" data-subtab="nvk4">НВК4</div>
+          <div class="subtab-btn" data-subtab="nvk5">НВК5</div>
+          <div class="subtab-btn" data-subtab="hotel">Гостиница</div>
+        </div>
 
-  <section id="transport">
-    <h2>🚌 Ближайшие автобусы</h2>
-    <table>
-      <tr>
-        <th>Маршрут</th>
-        <th>Остановка</th>
-        <th>Интервал</th>
-      </tr>
-      <tr>
-        <td>№15</td>
-        <td>Общежитие</td>
-        <td>каждые 15 минут</td>
-      </tr>
-      <tr>
-        <td>№42</td>
-        <td>Университет</td>
-        <td>каждые 20 минут</td>
-      </tr>
-    </table>
-    <p>⏰ Автобусы ходят с 6:00 до 23:00</p>
-  </section>
+        <div class="subtab-content">
+          <div id="nvk1" class="subtab-pane active">
+            <ul>
+              <li><strong>КПП:</strong> Главный вход НВК1</li>
+              <li><strong>Идти до остановки:</strong> 5 минут</li>
+              <li><strong>Автобус:</strong> №12</li>
+              <li><strong>Начальная остановка:</strong> Улица Ленина</li>
+              <li><strong>Ехать до университета:</strong> 15 минут</li>
+              <li><strong>Конечная остановка:</strong> Университет им. Дружбы</li>
+            </ul>
+          </div>
+          <div id="nvk2" class="subtab-pane">
+            <ul>
+              <li><strong>КПП:</strong> Восточный вход</li>
+              <li><strong>Идти до остановки:</strong> 3 минуты</li>
+              <li><strong>Автобус:</strong> №8</li>
+              <li><strong>Начальная остановка:</strong> Парк Победы</li>
+              <li><strong>Ехать до университета:</strong> 12 минут</li>
+              <li><strong>Конечная остановка:</strong> Университет им. Дружбы</li>
+            </ul>
+          </div>
+          <div id="nvk3" class="subtab-pane">
+            <ul>
+              <li><strong>КПП:</strong> Северные ворота</li>
+              <li><strong>Идти до остановки:</strong> 7 минут</li>
+              <li><strong>Автобус:</strong> №15</li>
+              <li><strong>Начальная остановка:</strong> Молодёжная</li>
+              <li><strong>Ехать до университета:</strong> 18 минут</li>
+              <li><strong>Конечная остановка:</strong> Университет им. Дружбы</li>
+            </ul>
+          </div>
+          <div id="nvk4" class="subtab-pane">
+            <ul>
+              <li><strong>КПП:</strong> Южный контроль</li>
+              <li><strong>Идти до остановки:</strong> 4 минуты</li>
+              <li><strong>Автобус:</strong> №22</li>
+              <li><strong>Начальная остановка:</strong> Центральный рынок</li>
+              <li><strong>Ехать до университета:</strong> 10 минут</li>
+              <li><strong>Конечная остановка:</strong> Университет им. Дружбы</li>
+            </ul>
+          </div>
+          <div id="nvk5" class="subtab-pane">
+            <ul>
+              <li><strong>КПП:</strong> Основной вход</li>
+              <li><strong>Идти до остановки:</strong> 6 минут</li>
+              <li><strong>Автобус:</strong> №7</li>
+              <li><strong>Начальная остановка:</strong> Площадь Свободы</li>
+              <li><strong>Ехать до университета:</strong> 14 минут</li>
+              <li><strong>Конечная остановка:</strong> Университет им. Дружбы</li>
+            </ul>
+          </div>
+          <div id="hotel" class="subtab-pane">
+            <ul>
+              <li><strong>КПП:</strong> Приёмная гостиницы</li>
+              <li><strong>Идти до остановки:</strong> 2 минуты</li>
+              <li><strong>Автобус:</strong> №12, №8</li>
+              <li><strong>Начальная остановка:</strong> Гостиница "Спутник"</li>
+              <li><strong>Ехать до университета:</strong> 13 минут</li>
+              <li><strong>Конечная остановка:</strong> Университет им. Дружбы</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Закупки/Еда -->
+      <div id="shopping" class="tab-pane">
+        <p>В какой новостройке вы живёте?</p>
+        <div class="building-selector">
+          <button class="building-btn active" data-building="nvk1">НВК1</button>
+          <button class="building-btn" data-building="nvk2">НВК2</button>
+          <button class="building-btn" data-building="nvk3">НВК3</button>
+          <button class="building-btn" data-building="nvk4">НВК4</button>
+          <button class="building-btn" data-building="nvk5">НВК5</button>
+          <button class="building-btn" data-building="hotel">Гостиница</button>
+        </div>
+
+        <div class="stores-content">
+          <div id="stores-nvk1" class="store-pane active">
+            <h3>Магазины рядом с НВК1:</h3>
+            <ul>
+              <li>Китайский магазинчик — 3 мин пешком</li>
+              <li>Wildberries (пункт выдачи) — 8 мин</li>
+              <li>Жизнь март — 10 мин</li>
+              <li>Монетка — 5 мин</li>
+              <li>Магнит — 7 мин</li>
+              <li>Кафе "Уют" — 4 мин</li>
+            </ul>
+          </div>
+          <div id="stores-nvk2" class="store-pane">
+            <h3>Магазины рядом с НВК2:</h3>
+            <ul>
+              <li>Китайский магазинчик — 6 мин пешком</li>
+              <li>Wildberries — 10 мин</li>
+              <li>Жизнь март — 12 мин</li>
+              <li>Монетка — 3 мин</li>
+              <li>Магнит — 9 мин</li>
+              <li>Кафе "Студенческое" — 5 мин</li>
+            </ul>
+          </div>
+          <div id="stores-nvk3" class="store-pane">
+            <h3>Магазины рядом с НВК3:</h3>
+            <ul>
+              <li>Китайский магазинчик — 4 мин пешком</li>
+              <li>Wildberries — 15 мин</li>
+              <li>Жизнь март — 20 мин</li>
+              <li>Монетка — 6 мин</li>
+              <li>Магнит — 8 мин</li>
+              <li>Кафе "Горячий угол" — 7 мин</li>
+            </ul>
+          </div>
+          <div id="stores-nvk4" class="store-pane">
+            <h3>Магазины рядом с НВК4:</h3>
+            <ul>
+              <li>Китайский магазинчик — 2 мин пешком</li>
+              <li>Wildberries — 6 мин</li>
+              <li>Жизнь март — 8 мин</li>
+              <li>Монетка — 4 мин</li>
+              <li>Магнит — 5 мин</li>
+              <li>Кафе "Быстро и вкусно" — 3 мин</li>
+            </ul>
+          </div>
+          <div id="stores-nvk5" class="store-pane">
+            <h3>Магазины рядом с НВК5:</h3>
+            <ul>
+              <li>Китайский магазинчик — 5 мин пешком</li>
+              <li>Wildberries — 12 мин</li>
+              <li>Жизнь март — 14 мин</li>
+              <li>Монетка — 7 мин</li>
+              <li>Магнит — 6 мин</li>
+              <li>Кафе "Перекус" — 4 мин</li>
+            </ul>
+          </div>
+          <div id="stores-hotel" class="store-pane">
+            <h3>Магазины рядом с Гостиницей:</h3>
+            <ul>
+              <li>Китайский магазинчик — 8 мин пешком</li>
+              <li>Wildberries — 10 мин</li>
+              <li>Жизнь март — 15 мин</li>
+              <li>Монетка — 5 мин</li>
+              <li>Магнит — 7 мин</li>
+              <li>Кафе "Ночлежка" — 6 мин</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    function showSection(id) {
-      document.querySelectorAll("section").forEach(sec => {
-        sec.classList.remove("active");
+    // Переключение основных вкладок
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
       });
-      document.getElementById(id).classList.add("active");
+    });
+
+    // Подвкладки: НВК1–5, Гостиница
+    document.querySelectorAll('.subtab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.subtab-pane').forEach(p => p.classList.remove('active'));
+        
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.subtab).classList.add('active');
+      });
+    });
+
+    // Выбор общежития для магазинов
+    document.querySelectorAll('.building-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.building-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.store-pane').forEach(p => p.classList.remove('active'));
+        
+        btn.classList.add('active');
+        document.getElementById('stores-' + btn.dataset.building).classList.add('active');
+      });
+    });
+
+    // Мерцающие блики (жёлто-розовые)
+    const sparklesContainer = document.querySelector('.sparkles');
+
+    function createSparkle() {
+      const sparkle = document.createElement('div');
+      sparkle.classList.add('sparkle');
+      sparkle.style.left = Math.random() * 100 + 'vw';
+      sparkle.style.top = Math.random() * 100 + 'vh';
+      sparkle.style.opacity = Math.random() * 0.8 + 0.2;
+      sparkle.style.width = (Math.random() * 8 + 5) + 'px';
+      sparkle.style.height = sparkle.style.width;
+      sparkle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      sparklesContainer.appendChild(sparkle);
+
+      setTimeout(() => {
+        sparkle.remove();
+      }, 3000);
+    }
+
+    // Каждые 400мс создаём новый блик
+    setInterval(createSparkle, 400);
+
+    // Создаём первые сразу
+    for (let i = 0; i < 10; i++) {
+      setTimeout(createSparkle, i * 200);
     }
   </script>
 </body>
